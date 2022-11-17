@@ -44,7 +44,7 @@ namespace TypeFast
         public void Menu()
         {
             textSize = 40;
-            difficulty = 5;
+            difficulty = 0;
         }
 
         public void InitColors()
