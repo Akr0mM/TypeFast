@@ -19,7 +19,7 @@ namespace TypeFast
         public bool finished = false;
         public bool endOfText = false;
 
-        int difficulty = 0;
+        int difficulty = 3;
         int textSize;
         int marge = 20;
         int currentWordIndex = 0;
@@ -238,7 +238,7 @@ namespace TypeFast
 
             TypeFast tf = new TypeFast();
 
-            tf.words = System.IO.File.ReadAllLines(@"E:\Program Files (x86)\Visual Studio\Repos\TypeFast\Words.txt");
+            tf.words = System.IO.File.ReadAllLines(@"../../Words.txt");
 
             tf.Run();
         }
