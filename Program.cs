@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using static System.Console;
 using static System.ConsoleColor;
 using static System.ConsoleKey;
@@ -14,15 +17,21 @@ namespace TypeFast
 {
     internal class TypeFast
     {
-        Random rnd = new Random();
+        readonly Random rnd = new Random();
+        public static Timer aTimer;
+        public static double secondsCount = 0f;
 
         public bool finished = false;
         public bool endOfText = false;
+        public bool isTyping = false;
+        public bool testAborted = false;
 
         int difficulty = 0;
         int textSize;
         int marge = 20;
         int currentWordIndex = 0;
+        int correctWordsCount = 0;
+        int wrongWordsCount = 0;
         
         string currentWord;
         string[] words;
@@ -43,7 +52,7 @@ namespace TypeFast
 
         public void Menu()
         {
-            textSize = 40;
+            textSize = 15 ;
             difficulty = 0;
         }
 
@@ -74,6 +83,23 @@ namespace TypeFast
                 textList.Add(words[index].ToLower());
             }
             text = textList.ToArray();
+        }
+
+        public void StartTimer()
+        {
+            aTimer = new Timer(95); // 10 times per seconds
+            aTimer.Elapsed += ATimer_Elapsed;
+            aTimer.Enabled = true;
+            aTimer.AutoReset = true;
+            aTimer.Start();
+        }
+
+        private void ATimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            secondsCount += 0.1f;
+            secondsCount = Math.Round(secondsCount, 1);
+
+            // throw new NotImplementedException();
         }
 
         public void InitAll()
@@ -131,7 +157,8 @@ namespace TypeFast
 
                 ForegroundColor = fgc;
                 BackgroundColor = bgcClear;
-                Write(" ");
+                if (i != text.Length - 1)
+                    Write(" ");
                 if (CursorLeft - 1 > WindowWidth - marge - 6)
                 {
                     CursorLeft = marge;
@@ -154,7 +181,14 @@ namespace TypeFast
 
 
             if (input == wordToTest)
+            {
                 text[currentWordIndex] = "%" + currentWord;
+                if (currentWordIndex == text.Length - 1 && wordToTest.Length == currentWord.Length)
+                {
+                    endOfText = true;
+                    finished = true;
+                }
+            }
             else
                 text[currentWordIndex] = "#" + currentWord;
         }
@@ -163,16 +197,22 @@ namespace TypeFast
         {
             if (text.Length == currentWordIndex + 1)
             {
+                // finish the text
                 endOfText = true;
                 finished = true;
+
+                // stop timer
+                aTimer.AutoReset = false;
             }
             else if (input == text[currentWordIndex])
             {
                 text[currentWordIndex] = "$" + text[currentWordIndex];
+                correctWordsCount++;
             }
             else
             {
                 text[currentWordIndex] = "@" + text[currentWordIndex];
+                wrongWordsCount++;
             }
         }
 
@@ -182,9 +222,17 @@ namespace TypeFast
             CursorTop  = 10;
             Write(input);
 
-            ConsoleKeyInfo keyInfo = ReadKey();
+            ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
+            if (!finished)
+                keyInfo = ReadKey();
             ConsoleKey key = keyInfo.Key;
             char keyChar = keyInfo.KeyChar;
+
+            if (!isTyping)
+            {
+                isTyping = true;
+                StartTimer();
+            }
 
             if (key == Spacebar)
             {
@@ -197,23 +245,46 @@ namespace TypeFast
                 if (input.Length != 0)
                     input = input.Remove(input.Length - 1);
             }
-            else if (key == Enter) { }
+            else if (key == Enter) { /**/ }
             else if (key == Escape)
+            {
                 finished = true;
+                testAborted = true;
+            }
             else
             {
                 input += keyChar;
             }
         }
 
+        public int WPM(int wordsCorrect, double seconds)
+        {
+            double wpm = Math.Round(wordsCorrect / (seconds / 60));
+            return int.Parse(wpm.ToString());
+        }
+
         public void EndScreen()
         {
             Clear();
             SetCursorPosition(0, 0);
-            WriteLine("Press any key to exit...");
+
+            if (testAborted)
+                WriteLine("Test was aborted");
+            else
+            {
+                WriteLine("Your WPM is: " + WPM(correctWordsCount, secondsCount));
+                WriteLine("Text finished in " + secondsCount + "s");
+            }
+            WriteLine("\nPress any key to exit...");
             ReadKey();
         }
 
+        public void WriteTimer()
+        {
+            SetCursorPosition(0, 0);
+            Write(secondsCount);
+        }
+         
         private void Run()
         {
             InitAll();
@@ -221,6 +292,7 @@ namespace TypeFast
             {
                 UpdateText();
                 WriteText();
+                WriteTimer();
                 WriteInput();
             }
             EndScreen();
