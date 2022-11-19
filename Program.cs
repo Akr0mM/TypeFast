@@ -19,7 +19,7 @@ namespace TypeFast
         public bool finished = false;
         public bool endOfText = false;
 
-        int difficulty = 3;
+        int difficulty = 0;
         int textSize;
         int marge = 20;
         int currentWordIndex = 0;
