@@ -442,7 +442,7 @@ namespace TypeFast
                 else
                 {
                     WriteLine("Your WPM is: " + WPM(correctWordsCount, secondsCount));
-                    WriteLine("Text finished in " + secondsCount + "s");
+                    WriteLine("\nText finished in " + secondsCount + "s");
                 }
                 WriteLine("\nPress <R> to start a new test");
                 WriteLine("\nPress any other key to exit...");
@@ -526,7 +526,7 @@ namespace TypeFast
 
             TypeFast tf = new TypeFast();
 
-            tf.words = System.IO.File.ReadAllLines(@"../../Words.txt");
+            tf.words = System.IO.File.ReadAllLines(@"../../words/french_words.txt");
 
             tf.Run();
         }
