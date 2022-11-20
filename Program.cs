@@ -25,10 +25,12 @@ namespace TypeFast
         public bool endOfText = false;
         public bool isTyping = false;
         public bool testAborted = false;
+        public bool endedInMenu = false;
 
         int difficulty = 0;
         int textSize;
         int marge = 20;
+        int topMarge = 4;
         int currentWordIndex = 0;
         int correctWordsCount = 0;
         int wrongWordsCount = 0;
@@ -37,6 +39,26 @@ namespace TypeFast
         string[] words;
         string[] text = {};
         string input = "";
+
+        string typeFastLogo = @"
+                        _________          _______  _______    _______  _______  _______ _________
+                        \__   __/|\     /|(  ____ )(  ____ \  (  ____ \(  ___  )(  ____ \\__   __/
+                           ) (   ( \   / )| (    )|| (    \/  | (    \/| (   ) || (    \/   ) (   
+                           | |    \ (_) / | (____)|| (__      | (__    | (___) || (_____    | |   
+                           | |     \   /  |  _____)|  __)     |  __)   |  ___  |(_____  )   | |   
+                           | |      ) (   | (      | (        | (      | (   ) |      ) |   | |   
+                           | |      | |   | )      | (____/\  | )      | )   ( |/\____) |   | |   
+                           )_(      \_/   |/       (_______/  |/       |/     \|\_______)   )_(   
+                                                                                                  
+";
+        string startLogo = @"
+                                                _____ __             __ 
+                                               / ___// /_____ ______/ /_
+                                               \__ \/ __/ __ `/ ___/ __/
+                                              ___/ / /_/ /_/ / /  / /_  
+                                             /____/\__/\__,_/_/   \__/  
+                                                                        
+";
 
         List<string> textList;
 
@@ -52,8 +74,158 @@ namespace TypeFast
 
         public void Menu()
         {
-            textSize = 15 ;
-            difficulty = 0;
+            int selection = 0;
+            int wordAmount = 15;
+            int maxWordAmount = 50;
+            int difficultyChosen = 0;
+            int maxDifficultyChoice = 9;
+            bool start = false;
+
+            while (!start)
+            {
+                Clear();
+
+                SetCursorPosition(0, 0);
+                Write(typeFastLogo);
+                SetCursorPosition(50, 11);
+                Write("Typing Test in C#");
+
+                if (selection == 0)
+                {
+                    SetCursorPosition(28, 17);
+                    Write(">");
+                    SetCursorPosition(44, 16);
+                    Write("+");
+                    SetCursorPosition(30, 17);
+                    Write("Word Amount: 0" + wordAmount);
+                    SetCursorPosition(44, 18);
+                    Write("-");
+                    SetCursorPosition(47, 17);
+                    Write("<");
+                }
+                else
+                {
+                    SetCursorPosition(30, 17);
+                    Write("Word Amount: 0" + wordAmount);
+                }
+
+                if (selection == 1)
+                {
+                    SetCursorPosition(68, 17);
+                    Write(">");
+                    SetCursorPosition(87, 16);
+                    Write("+");
+                    SetCursorPosition(70, 17);
+                    Write("Text Difficulty: " + (difficultyChosen + 1));
+                    SetCursorPosition(87, 18);
+                    Write("-");
+                    if (difficultyChosen == 9)
+                    {
+                        SetCursorPosition(90, 17);
+                        Write("<");
+                    }
+                    else
+                    {
+                        SetCursorPosition(89, 17);
+                        Write("<");
+                    }
+                }
+                else
+                {
+                    SetCursorPosition(70, 17);
+                    Write("Text Difficulty: " + (difficultyChosen + 1));
+                }
+
+                if (selection == 2)
+                { 
+                    SetCursorPosition(50, 20);
+                    Write(startLogo);
+                    SetCursorPosition(43, 23);
+                    Write(">");
+                    SetCursorPosition(43, 24);
+                    Write(">");
+                    SetCursorPosition(73, 23);
+                    Write("<");
+                    SetCursorPosition(73, 24);
+                    Write("<");
+                }
+                else
+                {
+                    SetCursorPosition(50, 20);
+                    Write(startLogo);
+                }
+
+                if (selection == 3)
+                {
+                    SetCursorPosition(54, 27);
+                    Write(">");
+                    SetCursorPosition(56, 27);
+                    Write("Exit");
+                    SetCursorPosition(61, 27);
+                    Write("<");
+                }
+                else
+                {
+                    SetCursorPosition(56, 27);
+                    Write("Exit");
+                }
+
+                ConsoleKeyInfo keyInfo = ReadKey(true);
+
+                switch (keyInfo.Key)
+                {
+                    case LeftArrow:
+                        if (selection != 0)
+                            selection--;
+                        break;
+                    case RightArrow:
+                        if (selection != 3)
+                            selection++;
+                        break;
+                    case UpArrow:
+                        if (selection == 0)
+                        {
+                            if (wordAmount != maxWordAmount)
+                                wordAmount++;
+                        }
+                        else if (selection == 1)
+                        {
+                            if (difficultyChosen != maxDifficultyChoice)
+                                difficultyChosen++;
+                        }
+                        break;
+                    case DownArrow:
+                        if (selection == 0)
+                        {
+                            if (wordAmount != 1)
+                                wordAmount--;
+                        }
+                        else if (selection == 1)
+                        {
+                            if (difficultyChosen != 0)
+                                difficultyChosen--;
+                        }
+                        break;
+                    case Enter:
+                        if (selection == 2)
+                        {
+                            difficulty = difficultyChosen;
+                            textSize = wordAmount;
+                            start = true;
+                        }
+                        else if (selection == 3)
+                        {
+                            finished = true;
+                            endOfText = true;
+                            endedInMenu = true;
+                            start = true;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         public void InitColors()
@@ -87,7 +259,7 @@ namespace TypeFast
 
         public void StartTimer()
         {
-            aTimer = new Timer(95); // 10 times per seconds
+            aTimer = new Timer(100); // 10 times per seconds
             aTimer.Elapsed += ATimer_Elapsed;
             aTimer.Enabled = true;
             aTimer.AutoReset = true;
@@ -120,6 +292,7 @@ namespace TypeFast
 
             Clear();
             CursorLeft = marge;
+            CursorTop = topMarge;
             for (int i = 0; i < text.Length; i++)
             {
                 if (text[i][0] == '%')
@@ -219,7 +392,7 @@ namespace TypeFast
         public void WriteInput()
         {
             CursorLeft = WindowWidth / 2 - input.Length / 2;
-            CursorTop  = 10;
+            CursorTop  = 10 + topMarge;
             Write(input);
 
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
@@ -268,7 +441,7 @@ namespace TypeFast
             Clear();
             SetCursorPosition(0, 0);
 
-            if (testAborted)
+            if (testAborted || endedInMenu)
                 WriteLine("Test was aborted");
             else
             {
@@ -276,12 +449,22 @@ namespace TypeFast
                 WriteLine("Text finished in " + secondsCount + "s");
             }
             WriteLine("\nPress any key to exit...");
-            ReadKey();
+
+            bool pressed = false;
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = ReadKey();
+
+                if (keyInfo.Key != Spacebar || pressed)
+                    break;
+                else if (keyInfo.Key == Spacebar)
+                    pressed = true;
+            }
         }
 
         public void WriteTimer()
         {
-            SetCursorPosition(0, 0);
+            SetCursorPosition(0, topMarge);
             Write(secondsCount);
         }
          
