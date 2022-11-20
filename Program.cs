@@ -435,33 +435,36 @@ namespace TypeFast
             Clear();
             SetCursorPosition(0, 0);
 
-            if (testAborted || endedInMenu)
-                WriteLine("Test was aborted");
-            else
+            if (!endedInMenu)
             {
-                WriteLine("Your WPM is: " + WPM(correctWordsCount, secondsCount));
-                WriteLine("Text finished in " + secondsCount + "s");
-            }
-            WriteLine("\nPress <R> to start a new test");
-            WriteLine("\nPress any other key to exit...");
-
-            bool pressed = false;
-            while (true)
-            {
-                ConsoleKeyInfo keyInfo = ReadKey();
-
-                if (keyInfo.Key == R)
+                if (testAborted)
+                    WriteLine("Test was aborted");
+                else
                 {
-                    Stop();
-                    Run();
-                    break;
+                    WriteLine("Your WPM is: " + WPM(correctWordsCount, secondsCount));
+                    WriteLine("Text finished in " + secondsCount + "s");
                 }
+                WriteLine("\nPress <R> to start a new test");
+                WriteLine("\nPress any other key to exit...");
+
+                bool pressed = false;
+                while (true)
+                {
+                    ConsoleKeyInfo keyInfo = ReadKey();
+
+                    if (keyInfo.Key == R)
+                    {
+                        Stop();
+                        Run();
+                        break;
+                    }
 
 
-                if (keyInfo.Key != Spacebar || keyInfo.Key != Enter || pressed)
-                    break;
-                else if (keyInfo.Key == Spacebar || keyInfo.Key == Enter)
-                    pressed = true;
+                    if (keyInfo.Key != Spacebar || keyInfo.Key != Enter || pressed)
+                        break;
+                    else if (keyInfo.Key == Spacebar || keyInfo.Key == Enter)
+                        pressed = true;
+                }
             }
         }
 
