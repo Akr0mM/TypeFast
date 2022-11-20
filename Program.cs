@@ -526,7 +526,7 @@ namespace TypeFast
 
             TypeFast tf = new TypeFast();
 
-            tf.words = System.IO.File.ReadAllLines(@"../../words/french_words.txt");
+            tf.words = System.IO.File.ReadAllLines(@"../../Words/french_words.txt");
 
             tf.Run();
         }
