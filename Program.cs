@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using static System.Console;
 using static System.ConsoleColor;
 using static System.ConsoleKey;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TypeFast
 {
     internal class TypeFast
     {
-        readonly Random rnd = new Random();
+        Random rnd = new Random();
         public static Timer aTimer;
         public static double secondsCount = 0f;
 
@@ -249,6 +242,7 @@ namespace TypeFast
         {
             int range = (difficulty + 1) * 1000;
             textList = text.ToList();
+            textList.Clear();
             for (int i = 0; i < textSize; i++)
             {
                 int index = rnd.Next(0, range);
@@ -448,16 +442,25 @@ namespace TypeFast
                 WriteLine("Your WPM is: " + WPM(correctWordsCount, secondsCount));
                 WriteLine("Text finished in " + secondsCount + "s");
             }
-            WriteLine("\nPress any key to exit...");
+            WriteLine("\nPress <R> to start a new test");
+            WriteLine("\nPress any other key to exit...");
 
             bool pressed = false;
             while (true)
             {
                 ConsoleKeyInfo keyInfo = ReadKey();
 
-                if (keyInfo.Key != Spacebar || pressed)
+                if (keyInfo.Key == R)
+                {
+                    Stop();
+                    Run();
                     break;
-                else if (keyInfo.Key == Spacebar)
+                }
+
+
+                if (keyInfo.Key != Spacebar || keyInfo.Key != Enter || pressed)
+                    break;
+                else if (keyInfo.Key == Spacebar || keyInfo.Key == Enter)
                     pressed = true;
             }
         }
@@ -479,6 +482,33 @@ namespace TypeFast
                 WriteInput();
             }
             EndScreen();
+        }
+
+        private void Stop()
+        {
+            rnd = new Random();
+            aTimer.Stop();
+            aTimer.Enabled = false;
+            aTimer.AutoReset = false;
+            aTimer = new Timer();
+            secondsCount = 0f;
+
+            finished = false;
+            endOfText = false;
+            isTyping = false;
+            testAborted = false;
+            endedInMenu = false;
+
+            difficulty = 0;
+            textSize = 0;
+            marge = 20;
+            topMarge = 4;
+            currentWordIndex = 0;
+            correctWordsCount = 0;
+            wrongWordsCount = 0;
+
+            currentWord = "";
+            input = "";
         }
 
 
